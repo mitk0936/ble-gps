@@ -1,0 +1,6 @@
+[submodule "lib/nodemcu-esp8266-helpers"]
+	path = lib/nodemcu-esp8266-helpers
+	url = git@github.com:mitk0936/nodemcu-esp8266-helpers.git
+[submodule "lib/lua-nmea"]
+	path = lib/lua-nmea
+	url = git@github.com:jvermillard/lua-nmea.git
