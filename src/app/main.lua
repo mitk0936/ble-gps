@@ -13,7 +13,7 @@ local parser = function (line, on_decode)
 
   for capture in string.gmatch(line, GGA_regex) do
     parsed = true;
-    
+
     table.insert(lines, '$GP'..capture);
 
     local decoded = lua_nmea.decode('$GP'..capture);
@@ -27,6 +27,9 @@ local parser = function (line, on_decode)
       on_decode('LO'..decoded.longitude..'|');
     end
 
+    if (decoded.satelite) then
+      on_decode('SAT'..decoded.satelite);
+    end
   end
 
   return parsed, lines;
