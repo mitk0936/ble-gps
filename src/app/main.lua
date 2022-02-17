@@ -1,48 +1,22 @@
 local tmr_helper = require('lib/tmr');
-local lua_nmea = require('lib/nmea');
 
-local GGA_regex = 'GGA,%d+.%d+,.+,%*%d+';
+local function split_by_chunk (text, chunk_size)
+    local s = {};
 
-local read
-local parser = function (line, on_decode)
-  local parsed = nil;
-  local lines = {};
-  local parsed = nil;
-
-  print('<<<', line, '\n');
-
-  for capture in string.gmatch(line, GGA_regex) do
-    parsed = true;
-
-    table.insert(lines, '$GP'..capture);
-
-    local decoded = lua_nmea.decode('$GP'..capture);
-
-    print('\n\n');
-    print(decoded.latitude, decoded.longitude, decoded.map, decoded.satelite);
-    print('\n\n');
-
-    if (decoded.latitude and decoded.longitude) then
-      on_decode('LA'..decoded.latitude);
-      on_decode('LO'..decoded.longitude..'|');
+    for i=1, #text, chunk_size do
+        s[#s+1] = text:sub(i, i + chunk_size - 1)
     end
 
-    if (decoded.satelite) then
-      on_decode('SAT'..decoded.satelite);
-    end
-  end
-
-  return parsed, lines;
+    return s
 end
 
-read = function (softuart_instance, write_ble)
+local read = function (softuart_instance, write_ble)
   softuart_instance:on('data', 128, function(line)
+    local st = split_by_chunk(line, 16);
 
-    parser(line, function (line)
-      write_ble(line);
-    end);
-
-    read(softuart_instance, write_ble);
+    for i,v in ipairs(st) do
+       write_ble(v);
+    end
   end);
 end
 
